@@ -10,6 +10,7 @@ interface NewNoteCardProps {
 export function NewNoteCard({ onNoteCreated }: NewNoteCardProps) {
   const [shouldShowOnBoarding, setShouldShowOnBoarding] = useState(true);
   const [content, setContent] = useState("");
+  const [isRecording, setIsRecording] = useState(false);
 
   const handleStartEditor = () => {
     setShouldShowOnBoarding(false);
@@ -25,11 +26,24 @@ export function NewNoteCard({ onNoteCreated }: NewNoteCardProps) {
   const handleSaveNote = (event: FormEvent) => {
     event.preventDefault();
 
+    if (content === "") {
+      toast.error("A nota não pode ser vazia!");
+      return;
+    }
+
     onNoteCreated(content);
     setContent("");
     setShouldShowOnBoarding(true);
 
     toast.success("Nota salva com sucesso!");
+  };
+
+  const handleStartingRecording = () => {
+    setIsRecording(true);
+  };
+
+  const handleStopRecording = () => {
+    setIsRecording(false);
   };
 
   return (
@@ -50,7 +64,7 @@ export function NewNoteCard({ onNoteCreated }: NewNoteCardProps) {
             <X size={24} />
           </Dialog.Close>
 
-          <form onSubmit={handleSaveNote} className="flex-1 flex flex-col">
+          <form className="flex-1 flex flex-col">
             <div className="flex flex-1 flex-col gap-3 p-5">
               <span className="text-sm font-medium text-slate-300">
                 Adicionar Nota
@@ -59,11 +73,16 @@ export function NewNoteCard({ onNoteCreated }: NewNoteCardProps) {
               {shouldShowOnBoarding ? (
                 <p className="text-sm leading-6 text-slate-400">
                   Comece{" "}
-                  <button className="font-medium text-lime-400 hover:underline">
+                  <button
+                    type="button"
+                    onClick={handleStartingRecording}
+                    className="font-medium text-lime-400 hover:underline"
+                  >
                     gavando uma nota
                   </button>{" "}
                   em áudio ou se preferir{" "}
                   <button
+                    type="button"
                     onClick={handleStartEditor}
                     className="font-medium text-lime-400 hover:underline"
                   >
@@ -81,12 +100,24 @@ export function NewNoteCard({ onNoteCreated }: NewNoteCardProps) {
               )}
             </div>
 
-            <button
-              type="submit"
-              className="w-full bg-lime-400 py-4 text-center text-sm text-lime-950 outline-none font-medium hover:bg-lime-500 transition-colors"
-            >
-              Salvar Nota
-            </button>
+            {isRecording ? (
+              <button
+                type="button"
+                onClick={handleStopRecording}
+                className="w-full flex items-center justify-center gap-2 bg-slate-900 py-4 text-center text-sm text-slate-300 outline-none font-medium hover:text-slate-100 transition-colors"
+              >
+                <div className="size-3 rounded-full bg-red-500 animate-pulse" />
+                Gravando (clique para interromper)
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSaveNote}
+                className="w-full bg-lime-400 py-4 text-center text-sm text-lime-950 outline-none font-medium hover:bg-lime-500 transition-colors"
+              >
+                Salvar Nota
+              </button>
+            )}
           </form>
         </Dialog.Content>
       </Dialog.Portal>
